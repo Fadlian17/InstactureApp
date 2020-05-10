@@ -1,22 +1,25 @@
 const express = require('express')
 const app = express()
+const mongoose = require('mongoose')
 const PORT = 5000
+const {MONGOURI} = require('./keys')
 
-const customMidlleware = (req,res,next)=>{
-    console.log("middleware executed!!")
-    next()
-}
+require('./models/user')
 
-app.use(customMidlleware)
+app.use(express.json())
+app.use(require('./routes/auth'))
 
-app.get('/',(req,res)=>{
-    console.log("home")
-    res.send("Home Page")   
+//koneksi pada mongoDB Atlas
+mongoose.connect(MONGOURI,{
+    useNewUrlParser:true,
+    useUnifiedTopology:true
 })
 
-app.get('/about',customMidlleware,(req,res)=>{
-    console.log("about")
-    res.send("about page")   
+mongoose.connection.on('connected',()=>{
+    console.log("connected to mongoDB")
+})
+mongoose.connection.on('error',(err)=>{
+    console.log("err connecting",err)
 })
 
 app.listen(PORT,()=>{
